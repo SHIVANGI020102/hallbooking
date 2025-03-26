@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marriage Hall Booking</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            background-image: url('bgm.jpg'); 
+            background-size: cover;
+            background-position: center;
+            margin: 20px;
+            padding: 20px;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            margin: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        table { 
+            width: 80%; 
+            margin: auto; 
+            border-collapse: collapse; 
+        }
+        th, td { 
+            border: 1px solid black; 
+            padding: 10px; 
+        }
+        button { 
+            margin-top: 10px; 
+            padding: 10px; 
+            background: #ff5722; 
+            color: white; 
+            border: none; 
+            cursor: pointer; 
+            border-radius: 5px;
+        }
+        button:hover {
+            background: #e64a19;
+        }
+        .logo {
+            width: 100px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="logo.jpg" alt="Marriage Hall Logo" class="logo">
+        <h2>Marriage Hall Booking</h2>
+        <img src="hall.jpg" alt="Marriage Hall" width="30%">
+        <form id="bookingForm">
+            <input type="text" id="name" placeholder="Enter Name" required>
+            <input type="text" id="phone" placeholder="Phone Number" required>
+            <input type="text" id="address" placeholder="Address" required>
+            <input type="date" id="bookingDate" required>
+            <input type="date" id="marriageDate" required>
+            <input type="number" id="totalAmount" placeholder="Total Amount" required>
+            <input type="number" id="paidAmount" placeholder="Paid Amount" required>
+            <input type="number" id="discount" placeholder="Discount" required>
+            <button type="button" onclick="addBooking()">Add Booking</button>
+        </form>
+        
+        <h3>Booking Records</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Address</th>
+                    <th>Booking Date</th>
+                    <th>Marriage Date</th>
+                    <th>Total Amount</th>
+                    <th>Paid</th>
+                    <th>Remaining</th>
+                    <th>Discount</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="bookingTable"></tbody>
+        </table>
+        
+        <button onclick="downloadPDF()">Download PDF</button>
+    </div>
+    
+    <script>
+        let bookings = [];
+
+        function addBooking() {
+            let name = document.getElementById('name').value;
+            let phone = document.getElementById('phone').value;
+            let address = document.getElementById('address').value;
+            let bookingDate = document.getElementById('bookingDate').value;
+            let marriageDate = document.getElementById('marriageDate').value;
+            let totalAmount = parseFloat(document.getElementById('totalAmount').value);
+            let paidAmount = parseFloat(document.getElementById('paidAmount').value);
+            let discount = parseFloat(document.getElementById('discount').value);
+            let remainingAmount = totalAmount - paidAmount - discount;
+            
+            let booking = { name, phone, address, bookingDate, marriageDate, totalAmount, paidAmount, remainingAmount, discount };
+            bookings.push(booking);
+            displayBookings();
+        }
+
+        function displayBookings() {
+            let table = document.getElementById("bookingTable");
+            table.innerHTML = "";
+            bookings.forEach((booking, index) => {
+                table.innerHTML += `
+                    <tr>
+                        <td>${booking.name}</td>
+                        <td>${booking.phone}</td>
+                        <td>${booking.address}</td>
+                        <td>${booking.bookingDate}</td>
+                        <td>${booking.marriageDate}</td>
+                        <td>${booking.totalAmount}</td>
+                        <td>${booking.paidAmount}</td>
+                        <td>${booking.remainingAmount}</td>
+                        <td>${booking.discount}</td>
+                        <td><button onclick="deleteBooking(${index})">Delete</button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function deleteBooking(index) {
+            bookings.splice(index, 1);
+            displayBookings();
+        }
+
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            let doc = new jsPDF();
+            doc.text("Marriage Hall Booking Records", 20, 10);
+            let y = 20;
+            bookings.forEach((booking, index) => {
+                doc.text(`${index + 1}. ${booking.name}, ${booking.phone}, ${booking.address}, ${booking.bookingDate}, ${booking.marriageDate}, ${booking.totalAmount}, ${booking.paidAmount}, ${booking.remainingAmount}, ${booking.discount}`, 10, y);
+                y += 10;
+            });
+            doc.save("booking_records.pdf");
+        }
+    </script>
+</body>
+</html>
